@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -29,7 +29,8 @@ export class ProductFormComponent implements OnInit {
     private fb: FormBuilder,
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +59,8 @@ export class ProductFormComponent implements OnInit {
   private loadProductForEdit(id: number): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
+
     this.productService.findById(id).subscribe({
       next: (product) => {
         this.isLoading = false;
@@ -67,11 +70,13 @@ export class ProductFormComponent implements OnInit {
           price: product.price,
           stockQuantity: product.stockQuantity
         });
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = `Não foi possível carregar o produto #${id} para edição.`;
         console.error('Erro ao buscar produto:', err);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -80,6 +85,7 @@ export class ProductFormComponent implements OnInit {
     this.productForm.reset();
     this.errorMessage = '';
     this.successMessage = '';
+    this.cdr.markForCheck();
   }
 
   onBack(): void {
@@ -90,12 +96,14 @@ export class ProductFormComponent implements OnInit {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
       this.errorMessage = 'Por favor, preencha todos os campos obrigatórios corretamente.';
+      this.cdr.markForCheck();
       return;
     }
 
     this.isSubmitting = true;
     this.errorMessage = '';
     this.successMessage = '';
+    this.cdr.markForCheck();
 
     const formValue = this.productForm.value;
     const productPayload: Product = {
@@ -112,7 +120,8 @@ export class ProductFormComponent implements OnInit {
         this.successMessage = this.isEditMode
           ? `Produto #${saved.id} atualizado com sucesso!`
           : `Produto "${saved.name}" cadastrado com sucesso!`;
-        
+        this.cdr.markForCheck();
+
         setTimeout(() => {
           this.router.navigate(['/products']);
         }, 1200);
@@ -125,11 +134,11 @@ export class ProductFormComponent implements OnInit {
           this.errorMessage = 'Falha ao salvar o produto na API. Verifique a conexão com o back-end.';
         }
         console.error('Erro ao salvar produto:', err);
+        this.cdr.markForCheck();
       }
     });
   }
 
-  // Getters de conveniência para validação no template
   isFieldInvalid(fieldName: string): boolean {
     const field = this.productForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));

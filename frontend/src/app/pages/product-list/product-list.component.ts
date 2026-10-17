@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Product } from '../../core/models/product.model';
@@ -25,7 +25,8 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -35,19 +36,23 @@ export class ProductListComponent implements OnInit {
   loadProducts(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.cdr.markForCheck();
+
     this.productService.findAll().subscribe({
       next: (data) => {
-        this.products = data;
+        this.products = data || [];
         this.isLoading = false;
         // Se o produto selecionado não existe mais na lista, limpa seleção
         if (this.selectedProduct && !this.products.some(p => p.id === this.selectedProduct?.id)) {
           this.selectedProduct = null;
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = 'Erro ao conectar à API REST: Verifique se o servidor back-end está em execução.';
         console.error('Falha ao carregar produtos:', err);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -58,6 +63,7 @@ export class ProductListComponent implements OnInit {
     } else {
       this.selectedProduct = product;
     }
+    this.cdr.markForCheck();
   }
 
   onReload(): void {
@@ -85,21 +91,33 @@ export class ProductListComponent implements OnInit {
 
     if (confirmed) {
       this.isDeleting = true;
+      this.cdr.markForCheck();
       const targetId = this.selectedProduct.id;
       this.productService.deleteById(targetId).subscribe({
         next: () => {
           this.isDeleting = false;
           this.successMessage = `Produto #${targetId} excluído com sucesso!`;
           this.selectedProduct = null;
+          this.cdr.markForCheck();
           this.loadProducts();
-          setTimeout(() => (this.successMessage = ''), 4000);
+          setTimeout(() => {
+            this.successMessage = '';
+            this.cdr.markForCheck();
+          }, 4000);
         },
         error: (err) => {
           this.isDeleting = false;
           this.errorMessage = 'Não foi possível excluir o produto. Tente novamente.';
           console.error('Falha na exclusão:', err);
+          this.cdr.markForCheck();
         }
       });
     }
   }
+
+  formatPrice(price: number): string {
+    if (price == null) return 'R$ 0,00';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+  }
 }
+

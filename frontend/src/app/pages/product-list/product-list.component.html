@@ -52,7 +52,7 @@
             <td class="col-barcode font-mono">{{ product.barcode }}</td>
             <td class="col-name font-medium">{{ product.name }}</td>
             <td class="col-price font-semibold text-primary">
-              {{ product.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              {{ formatPrice(product.price) }}
             </td>
             <td class="col-stock">
               <span [class.badge-stock-low]="product.stockQuantity <= 5" [class.badge-stock-ok]="product.stockQuantity > 5" class="stock-pill">
