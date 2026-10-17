@@ -1,0 +1,39 @@
+<div class="app-shell">
+  <!-- Top Navbar -->
+  <header class="app-navbar">
+    <div class="navbar-content">
+      <div class="brand-group">
+        <div class="brand-logo">PDV</div>
+        <div>
+          <span class="brand-name">PDV Core</span>
+          <span class="brand-badge">Sistema Web Assíncrono</span>
+        </div>
+      </div>
+
+      <nav class="navbar-links">
+        <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+          Catálogo
+        </a>
+        <a routerLink="/products/new" routerLinkActive="active" class="nav-link">
+          Novo Produto
+        </a>
+        <a href="http://localhost:8080/swagger-ui.html" target="_blank" rel="noopener noreferrer" class="nav-link nav-link-api">
+          Swagger API ↗
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Minimal Footer -->
+  <footer class="app-site-footer">
+    <div class="footer-inner">
+      <span>Desenvolvimento Web II &bull; CST em Desenvolvimento de Software Multiplataforma (FATEC)</span>
+      <span>Persistência Relacional com Chamadas Assíncronas</span>
+    </div>
+  </footer>
+</div>

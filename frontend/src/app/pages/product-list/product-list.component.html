@@ -1,0 +1,127 @@
+<div class="view-container">
+  <!-- 1. Cabeçalho Didático (Espelhando o Painel Superior da Tela Swing) -->
+  <header class="view-header">
+    <div class="header-titles">
+      <h1 class="view-title">Catálogo de Produtos - PDV</h1>
+      <p class="view-subtitle">Visualização em tempo real dos produtos persistidos no banco de dados.</p>
+    </div>
+  </header>
+
+  <!-- Mensagens de Feedback Reativo -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="alert-icon">✓</span>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <span class="alert-icon">⚠</span>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- 2. Tabela Central com Borda de Agrupamento ("Produtos Cadastrados") -->
+  <section class="card-section">
+    <div class="card-header-bar">
+      <h2 class="card-title">Produtos Cadastrados</h2>
+      <div *ngIf="isLoading" class="loading-badge">
+        <span class="spinner spinner-dark"></span> Sincronizando com a API...
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th class="col-barcode">Código de Barras</th>
+            <th class="col-name">Nome</th>
+            <th class="col-price">Preço</th>
+            <th class="col-stock">Quantidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas com Dados -->
+          <tr 
+            *ngFor="let product of products" 
+            (click)="selectProduct(product)"
+            [class.row-selected]="selectedProduct?.id === product.id"
+            class="clickable-row"
+          >
+            <td class="col-id">
+              <span class="badge-id">#{{ product.id }}</span>
+            </td>
+            <td class="col-barcode font-mono">{{ product.barcode }}</td>
+            <td class="col-name font-medium">{{ product.name }}</td>
+            <td class="col-price font-semibold text-primary">
+              {{ product.price | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </td>
+            <td class="col-stock">
+              <span [class.badge-stock-low]="product.stockQuantity <= 5" [class.badge-stock-ok]="product.stockQuantity > 5" class="stock-pill">
+                {{ product.stockQuantity }} un.
+              </span>
+            </td>
+          </tr>
+
+          <!-- Estado Vazio (Sem registros) -->
+          <tr *ngIf="!isLoading && products.length === 0">
+            <td colspan="5" class="empty-state">
+              <div class="empty-content">
+                <p class="empty-title">Nenhum produto cadastrado</p>
+                <p class="empty-hint">Clique em "+ Novo Produto" para realizar a primeira inserção.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. Rodapé com Contador de Registros e Botões de Ação -->
+  <footer class="view-footer">
+    <div class="footer-counter">
+      Total: {{ products.length }} produto(s) cadastrado(s)
+    </div>
+
+    <div class="footer-actions">
+      <button 
+        type="button" 
+        class="btn btn-outline" 
+        (click)="onReload()" 
+        [disabled]="isLoading"
+        title="Recarregar catálogo a partir da API REST"
+      >
+        <span *ngIf="isLoading" class="spinner spinner-dark"></span>
+        Recarregar
+      </button>
+
+      <button 
+        type="button" 
+        class="btn btn-danger" 
+        (click)="onDeleteProduct()" 
+        [disabled]="!selectedProduct || isDeleting"
+        title="Excluir o produto selecionado na tabela"
+      >
+        <span *ngIf="isDeleting" class="spinner"></span>
+        Excluir
+      </button>
+
+      <button 
+        type="button" 
+        class="btn btn-outline" 
+        (click)="onEditProduct()" 
+        [disabled]="!selectedProduct"
+        title="Editar o produto selecionado na tabela"
+      >
+        Editar
+      </button>
+
+      <button 
+        type="button" 
+        class="btn btn-primary" 
+        (click)="onNewProduct()"
+        title="Abrir formulário de cadastro de novo produto"
+      >
+        + Novo Produto
+      </button>
+    </div>
+  </footer>
+</div>

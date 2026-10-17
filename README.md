@@ -1,413 +1,390 @@
-# PDV-Swing-JPA: Persistência de Dados com Frameworks de Interface Gráfica
+# PDV Core - Sistema de Gestão de Produtos
 
-> **Plano de Aula & Projeto Didático de Referência para Ensino Superior e Concurso Público FATEC**  
-> **Instituição:** Centro Estadual de Educação Tecnológica Paula Souza (CEETEPS) — FATEC Votorantim  
-> **Concurso Público:** Exame Didático — Área: Tecnologia da Informação  
-> **Candidato:** Cainã Antunes Silva  
-> **Curso:** Graduação em Desenvolvimento de Software Multiplataforma (DSM)  
-> **Disciplina:** Técnicas de Programação II  
-> **Tema da Aula:** Persistência de dados utilizando frameworks de interface gráfica  
-> **Duração:** 50 minutos  
+[![Backend CI/CD](https://img.shields.io/badge/Backend%20CI-Passing-brightgreen?logo=github-actions)](https://github.com)
+[![Frontend CI/CD](https://img.shields.io/badge/Frontend%20CI-Passing-brightgreen?logo=github-actions)](https://github.com)
+[![Java 17](https://img.shields.io/badge/Java-17%20LTS-orange?logo=openjdk)](https://adoptium.net)
+[![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
+[![Angular 17+](https://img.shields.io/badge/Angular-SPA%20Standalone-red?logo=angular)](https://angular.dev)
+[![Docker](https://img.shields.io/badge/Docker-Multi--stage-blue?logo=docker)](https://www.docker.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
----
-
-## 1. Identificação e Contextualização do Plano de Aula
-
-Este projeto materializa a condução de uma aula teórico-prática de **50 minutos**, integrando a camada de apresentação desktop em **Java Swing** a um mecanismo robusto de persistência relacional com **JPA 3.1 / Hibernate 6** e banco embutido **H2 Database**. O desenvolvimento baseia-se em padrões consagrados de engenharia de software (**MVC, Observer, Repository e Inversão de Controle**), garantindo separação rigorosa de responsabilidades, reatividade de interface gráfica e segurança da informação.
-
-### 1.1. Pré-Requisitos Curriculares
-Para acompanhar esta aula, considera-se que os estudantes dominam competências consolidadas em semestres anteriores e em tópicos inaugurais desta disciplina:
-- **Técnicas de Programação I (2º Semestre):** Conceitos fundamentais de Programação Orientada a Objetos (classes, encapsulamento, herança, polimorfismo, contratos de interface), tratamento de exceções e introdução à construção de interfaces gráficas.
-- **Banco de Dados Relacional (2º Semestre):** Modelagem conceitual, lógica e física; integridade referencial e manipulação de dados com linguagem SQL (DDL e DML).
-- **Técnicas de Programação II (Aulas Anteriores):** Fundamentos dos padrões de projeto GoF (criacionais, estruturais e comportamentais) e introdução aos padrões arquiteturais de interface com usuário (MVC, MVP e MVVM).
+Aplicação web moderna, desacoplada e distribuída para catálogo e controle de inventário de produtos no subsistema de Ponto de Venda (PDV). O sistema implementa persistência relacional transacional sob garantias ACID e interface de usuário reativa orientada a eventos e requisições HTTP assíncronas não-bloqueantes.
 
 ---
 
-## 2. Objetivos de Aprendizagem
+## 1. Visão Geral e Propósito do Sistema
 
-Ao término desta aula de 50 minutos, os discentes deverão atingir os seguintes objetivos educacionais:
+O **PDV Core** foi refatorado a partir de uma arquitetura desktop monolítica para um modelo cliente-servidor desacoplado estruturado em monorepo:
 
-### 2.1. Objetivos Cognitivos (Saber)
-- **Compreender** como frameworks de interface gráfica orquestram a persistência de dados por meio da Inversão de Controle (*Inversion of Control* / *Hollywood Principle*) e da arquitetura orientada a eventos.
-- **Identificar** o papel e as vantagens das ferramentas de Mapeamento Objeto-Relacional (ORM) na resolução do descompasso de impedância (*impedance mismatch*) e na prevenção de vulnerabilidades de injeção de SQL (*SQL Injection*).
-- **Reconhecer** a aplicação prática dos padrões GoF *Observer* e dos padrões corporativos *MVC* e *Repository* em arquiteturas cliente desktop.
-
-### 2.2. Objetivos Práticos / Procedimentais (Saber Fazer)
-- **Conectar** a camada de apresentação visual construída em Java Swing a um repositório de dados mediado por JPA/Hibernate e banco de dados H2.
-- **Implementar** a sincronização reativa de dados entre modelos de tabela (`AbstractTableModel`) e componentes visuais (`JTable`) utilizando eventos desacoplados do padrão *Observer*.
-
-### 2.3. Objetivos Atitudinais (Ser / Agir)
-- **Demonstrar pensamento crítico** na seleção e estruturação de camadas de software, valorizando boas práticas de código limpo, desacoplamento arquitetural e segurança da informação no ciclo de vida dos dados corporativos.
+* **Back-end RESTful (Spring Boot 3):** Encapsula a lógica de negócio transacional, expõe contratos de comunicação estruturados em JSON, valida a integridade de dados na entrada via Bean Validation (Jakarta) e gerencia a persistência relacional através do Spring Data JPA / Hibernate ORM sobre o banco H2.
+* **Front-end SPA Reativo (Angular):** Interface reativa de alta performance construída com componentes standalone, gerenciamento de estado local, roteamento declarativo e comunicação assíncrona orientada a Observables via `HttpClient`.
+* **DevOps & Automação:** Infraestrutura 100% conteinerizada com Docker e Docker Compose, aliada a pipelines independentes de Integração e Entrega Contínua (CI/CD) no GitHub Actions voltadas para deploy PaaS/Edge (Render e Vercel).
 
 ---
 
-## 3. Conteúdo Programático
+## 2. Arquitetura da Solução
 
-1. **Contexto de Persistência em Aplicações Gráficas:** A ação do usuário como gatilho do ciclo de vida dos dados; Inversão de Controle (IoC) em frameworks de GUI.
-2. **Padrão Arquitetural MVC e Desacoplamento:** Fronteiras e contratos entre visualização (`View`), orquestração (`Controller`) e dados/regras de domínio (`Model`).
-3. **Padrões de Projeto Aplicados ao Framework e à Persistência:**
-   - **Observer (GoF):** `ActionListener` (captura na GUI) e `ProdutoObserver` / `fireTableDataChanged` (sincronização reativa de tela).
-   - **Repository:** Abstração da coleção de entidades em memória e isolamento das operações de banco de dados.
-4. **Camada ORM (JPA/Hibernate) & Banco Embutido:** Mapeamento declarativo de entidades (`@Entity`, `@Table`, `@Id`), controle transacional atômico (`commit`/`rollback`) e execução segura de transações sobre o H2 Database.
-5. **Estudo de Caso Norteador:** Apresentação arquitetural e de código do módulo de Cadastro e Gestão de Produtos (Módulo PDV).
-
----
-
-## 4. Estratégias Pedagógicas e Metodologia
-
-A condução didática fundamenta-se na articulação entre o **Estudo de Caso Norteador**, a **Demonstração Conceitual Dirigida** e a **Aprendizagem Baseada em Projetos (PBL - Project-Based Learning)**:
-
-- **Contextualização e Situação-Problema (Abertura):** A aula parte de uma demanda real do mercado de trabalho — o gerenciamento de retaguarda de produtos em um Ponto de Venda (PDV) — para instigar a reflexão sobre os vícios clássicos da programação desktop: mistura de comandos SQL dentro de eventos de clique de botões (`JButton`), telas que congelam e ausência de tratamento de transações.
-- **Demonstração Conceitual Dirigida (Desenvolvimento):** Utilização do miniprojeto funcional como fio condutor para desconstruir e analisar trechos de código em conjunto com os fundamentos teóricos que eles materializam (arquitetura MVC, padrões GoF e ciclo de persistência com ORM).
-- **Engajamento Ativo via PBL (Próximos Passos):** Lançamento de um desafio de desenvolvimento prático a ser executado em equipe nas aulas subsequentes, utilizando o repositório-base disponibilizado no GitHub como matriz inicial para a expansão de um PDV setorial completo.
-
----
-
-## 5. Diagramas Arquiteturais (Mermaid)
-
-### 5.1. Visão Geral da Arquitetura em Camadas (MVC Puro)
+A solução adota uma divisão rigorosa em camadas com baixo acoplamento e alta coesão:
 
 ```mermaid
 graph TD
-    subgraph UI_Layer ["Camada de Apresentação (View - Java Swing)"]
-        MF["MainFrame (CardLayout)"]
-        LV["ProdutoListView (JTable)"]
-        FV["ProdutoFormView (Formulário)"]
-        TM["ProdutoTableModel (AbstractTableModel)"]
-        MF --> LV
-        MF --> FV
-        LV --> TM
+    subgraph ClientSide ["Client-Side (Front-end SPA)"]
+        UI["Componentes Angular<br/>(ProductListComponent / ProductFormComponent)"]
+        SVC["ProductService (HttpClient / RxJS Observables)"]
+        UI -->|Invoca Assincronamente| SVC
     end
 
-    subgraph Controller_Layer ["Camada de Controle (Controller / Mediator)"]
-        PC["ProdutoController"]
+    subgraph Transport ["Camada de Transporte & Contrato"]
+        HTTP["HTTP / JSON REST API<br/>(CORS Habilitado & Swagger OpenAPI 3)"]
+        SVC -->|Requisições Assíncronas GET/POST/PUT/DELETE| HTTP
     end
 
-    subgraph Model_Layer ["Camada de Modelo (Model / Domain / Service)"]
-        PS["ProdutoService (Subject / Business Rules)"]
-        PO["&lt;&lt;interface&gt;&gt;<br/>ProdutoObserver"]
-        PE["Produto (JPA Entity)"]
+    subgraph ServerSide ["Server-Side (Back-end Spring Boot)"]
+        CTRL["ProductRestController"]
+        DTO["ProductRequestDTO / ProductResponseDTO<br/>(Bean Validation Jakarta)"]
+        SRV["ProductService<br/>(@Transactional / Regras de Negócio)"]
+        REP["ProductRepository<br/>(Spring Data JPA)"]
+
+        HTTP --> CTRL
+        CTRL --> DTO
+        CTRL --> SRV
+        SRV --> REP
     end
 
-    subgraph Persistence_Layer ["Camada de Persistência (Repository / ORM)"]
-        PR["&lt;&lt;interface&gt;&gt;<br/>ProdutoRepository"]
-        PRI["ProdutoRepositoryImpl"]
-        JU["JPAUtil (EntityManagerFactory)"]
-        H2[("H2 Database (Embutido / Arquivo)")]
-    end
+    subgraph DataTier ["Persistence Layer (Banco Relacional)"]
+        HIB["Hibernate ORM (JPA Provider)"]
+        H2[("H2 Database Engine<br/>Modo Arquivo / Memória")]
 
-    %% Relações e Fluxos
-    LV -- "Eventos (Clicks)" --> PC
-    FV -- "Eventos (Clicks)" --> PC
-    PC -- "Manipula Navegação" --> MF
-    PC -- "Chama Operações" --> PS
-    PS -- "Validações &amp; Notificações" --> PR
-    PRI -. "Implementa" .-> PR
-    PS --> PRI
-    PS -- "Notifica onProdutosChanged()" --> PO
-    PC -. "Implementa" .-> PO
-    PO -. "Atualiza Dados" .-> TM
-    PRI --> JU
-    PRI --> PE
-    JU --> H2
+        REP --> HIB
+        HIB --> H2
+    end
 ```
 
+### Detalhamento das Camadas
+
+1. **Client-Side (Angular SPA):**
+   * **Componentes Standalone:** Isolamento de responsabilidade entre listagem tabular (`ProductListComponent`) e formulário reativo de edição/cadastro (`ProductFormComponent`).
+   * **Serviço Assíncrono (`ProductService`):** Comunicação não-bloqueante baseada em RxJS com tipagem estrita via interface TypeScript `Product`.
+   * **Design Tokens & Acessibilidade:** Interface construída com design limpo, tipografia moderna (*Inter*), estados visuais reativos (*spinners*, *toasts*, bordas de validação dinâmica) e layout responsivo.
+
+2. **API Gateway / Camada de Transporte:**
+   * **Contrato RESTful Canônico:** Rotas padronizadas sob `/api/products` com tráfego bidirecional em JSON.
+   * **CORS Configurado:** Habilitado para consumo seguro por navegadores web em origens desacopladas.
+   * **Documentação Viva:** Contrato interativo OpenAPI 3 documentado via Swagger UI em `/swagger-ui.html`.
+
+3. **Server-Side (Spring Boot 3):**
+   * **Controllers REST:** Serialização automatizada, injeção de dependências e códigos de status HTTP semânticos (`200 OK`, `201 Created`, `204 No Content`, `400 Bad Request`, `404 Not Found`).
+   * **DTOs com Validação Declarativa:** `@NotBlank`, `@NotNull`, `@DecimalMin`, `@Min` garantem consistência antes de atingir a regra de negócio.
+   * **Camada de Serviço Transacional:** `@Transactional` assegura atomicidade e consistência (ACID) na validação de unicidade de código de barras e integridade dos registros.
+   * **Repositório Desacoplado:** `ProductRepository` estende `JpaRepository`, eliminando dependência direta de código boilerplate de `EntityManager`.
+
+4. **Persistence Layer (Hibernate / H2):**
+   * Mapeamento objeto-relacional automático sobre a tabela relacional `products`.
+   * Suporte tanto a banco baseado em arquivo (`./data/pos_db`) para persistência local quanto em memória (`mem:pos_test_db`) para suíte de testes.
+
 ---
 
-### 5.2. Diagrama de Sequência: Fluxo "Salvar Produto"
+## 3. Tecnologias Utilizadas (Tech Stack)
 
-O diagrama a seguir detalha o ciclo de vida completo do cadastro de um produto, desde a interação do usuário na interface gráfica até a persistência no banco e a atualização reativa da tabela:
+### Back-end
+* **Linguagem & Runtime:** Java 17 LTS (OpenJDK Temurin)
+* **Framework Central:** Spring Boot 3.2.5
+* **Persistência & Dados:** Spring Data JPA, Hibernate ORM 6.4
+* **Banco de Dados Relacional:** H2 Database Engine 2.2
+* **Validação de Entrada:** Jakarta Bean Validation (Hibernate Validator)
+* **Documentação de API:** Springdoc OpenAPI Starter WebMvc UI 2.3.0
+* **Build & Dependências:** Apache Maven 3.9 (Maven Wrapper incluso)
+* **Testes Automatizados:** JUnit 5, AssertJ, Spring Boot Test Slice
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Usuario as Operador
-    participant Form as ProdutoFormView
-    participant List as ProdutoListView (TableModel)
-    participant Ctrl as ProdutoController
-    participant Svc as ProdutoService
-    participant Repo as ProdutoRepositoryImpl
-    participant JPA as EntityManager (H2)
+### Front-end
+* **Framework:** Angular 17+ (Componentes Standalone)
+* **Linguagem:** TypeScript 5.4+
+* **Programação Reativa:** RxJS 7.8+
+* **Cliente HTTP:** Angular `HttpClient` com suporte a `withFetch`
+* **Estilização:** CSS Moderno com Design Tokens, Flexbox/Grid e animações fluidas
+* **Internacionalização:** Suporte a formatação monetária brasileira (`pt-BR` / Real R$)
 
-    Usuario->>Form: Clica em 'Salvar Produto'
-    Form->>Ctrl: Dispara ActionListener (btnSalvar)
-    Ctrl->>Form: Coleta dados (código de barras, nome, preço, estoque)
-    Form-->>Ctrl: Devolve os dados solicitados
-    Ctrl->>Ctrl: Valida conversão numérica (BigDecimal e Integer)
-    
-    Ctrl->>Svc: salvar(novoProduto)
-    Note over Svc: Valida Regras de Negócio<br/>- Campos não vazios<br/>- Preço positivo (> 0)<br/>- Estoque não negativo (>= 0)<br/>- Unicidade do código de barras
-    
-    Svc->>Repo: salvar(produto)
-    Repo->>JPA: em.getTransaction().begin()
-    Repo->>JPA: em.persist(produto)
-    Repo->>JPA: em.getTransaction().commit()
-    JPA-->>Repo: Produto com ID gerado (Identity)
-    Repo-->>Svc: Retorna produto persistido
-    
-    Note over Svc: Padrão Observer Disparado<br/>(Thread-Safe via SwingUtilities.invokeLater)
-    Svc->>Ctrl: onProdutosChanged(listaAtualizada)
-    Ctrl->>List: atualizarTabela(listaAtualizada)
-    Ctrl->>Form: Exibe mensagem de confirmação
-    Ctrl->>List: Alterna CardLayout para tela de Listagem
-    List-->>Usuario: JTable repintada e atualizada na tela
+### DevOps & Infraestrutura
+* **Conteinerização:** Docker Engine & Docker Compose (Multi-stage builds)
+* **Servidor Web SPA:** NGINX Alpine Linux
+* **CI/CD:** GitHub Actions (workflows paralelos com detecção de path)
+* **PaaS Back-end:** Render (Web Service Docker/Java)
+* **Edge Front-end:** Vercel (Edge Network com SPA Rewrites)
+
+---
+
+## 4. Estrutura do Repositório (Monorepo)
+
 ```
-
----
-
-### 5.3. Diagrama de Classes: Padrões Repository & Observer
-
-```mermaid
-classDiagram
-    class Produto {
-        -Long id
-        -String codigoBarras
-        -String nome
-        -BigDecimal preco
-        -Integer quantidadeEstoque
-        +getId() Long
-        +getCodigoBarras() String
-        +getNome() String
-        +getPreco() BigDecimal
-        +getQuantidadeEstoque() Integer
-    }
-
-    class ProdutoObserver {
-        <<interface>>
-        +onProdutosChanged(List~Produto~ produtos) void
-    }
-
-    class ProdutoRepository {
-        <<interface>>
-        +salvar(Produto p) Produto
-        +atualizar(Produto p) Produto
-        +excluir(Long id) void
-        +buscarPorId(Long id) Optional~Produto~
-        +buscarPorCodigoBarras(String cod) Optional~Produto~
-        +listarTodos() List~Produto~
-    }
-
-    class ProdutoRepositoryImpl {
-        -EntityManagerFactory emf
-        +salvar(Produto p) Produto
-        +atualizar(Produto p) Produto
-        +excluir(Long id) void
-        +buscarPorId(Long id) Optional~Produto~
-        +buscarPorCodigoBarras(String cod) Optional~Produto~
-        +listarTodos() List~Produto~
-    }
-
-    class ProdutoService {
-        -ProdutoRepository repository
-        -List~ProdutoObserver~ observers
-        +addObserver(ProdutoObserver o) void
-        +removeObserver(ProdutoObserver o) void
-        +notificarObservadores() void
-        +salvar(Produto p) Produto
-        +atualizar(Produto p) Produto
-        +excluir(Long id) void
-        +listarTodos() List~Produto~
-    }
-
-    class ProdutoController {
-        -MainFrame mainFrame
-        -ProdutoListView listView
-        -ProdutoFormView formView
-        -ProdutoService service
-        +inicializar() void
-        +onProdutosChanged(List~Produto~ produtos) void
-    }
-
-    ProdutoRepository <|.. ProdutoRepositoryImpl : implementa
-    ProdutoObserver <|.. ProdutoController : implementa
-    ProdutoService o--> ProdutoObserver : notifica (1..*)
-    ProdutoService --> ProdutoRepository : utiliza (DIP)
-    ProdutoController --> ProdutoService : orquestra
-    ProdutoRepositoryImpl --> Produto : gerencia
-```
-
----
-
-## 6. Justificativa Pedagógica do Stack Tecnológico
-
-| Tecnologia / Decisão | Justificativa Didática |
-| :--- | :--- |
-| **Java 17+ (LTS)** | Linguagem padrão em instituições de ensino técnico e superior, fornecendo estabilidade corporativa aliada a recursos modernos da linguagem. |
-| **Jakarta Persistence (JPA 3.1) & Hibernate 6.x** | Demonstra a separação fundamental entre **especificação padrão** (`jakarta.persistence.*`) e **provedor de implementação** (`org.hibernate.*`). Ensina aos alunos o paradigma ORM, ciclo de vida de entidades (*transient, managed, detached*), mapeamento de constraints e transações atômicas ACID sem acoplamento a SQL proprietário. |
-| **H2 Database (Embutido / Arquivo)** | **Zero-Configuration:** Elimina a necessidade de servidores de banco externos (MySQL/PostgreSQL/Docker), permitindo que bancas examinadoras e estudantes executem a aplicação imediatamente. Os dados persistem no diretório local `./data/pdv_db.mv.db`. |
-| **Java Swing (Código Puro)** | Permite ao docente demonstrar a engenharia de componentes visuais (`JFrame`, `JPanel`), gerenciadores de layout (`CardLayout`, `GridBagLayout`, `BorderLayout`) e o controle rigoroso da **Event Dispatch Thread (EDT)**. |
-| **FlatLaf Look & Feel** | Proporciona estética moderna e profissional à aplicação desktop, superando o aspecto arcaico dos temas tradicionais do Java. |
-| **Maven Wrapper (`mvnw` / `mvnw.cmd`)** | Assegura reproducibilidade estrita de compilação e execução em qualquer plataforma (Windows, Linux, macOS), sem depender de instalação prévia do Maven no sistema operacional. |
-
----
-
-## 7. Estrutura do Projeto
-
-```text
-exemplo_persistencia_JavaSwing/
-├── .mvn/wrapper/                 # Binários e configuração do Maven Wrapper
-├── data/                         # Arquivos de banco de dados H2 gerados em tempo de execução
-├── src/
-│   ├── main/
-│   │   ├── java/br/gov/sp/cps/fatec/pdv/
-│   │   │   ├── Main.java                        # Ponto de entrada (Bootstrap, Pure DI e Look&Feel)
-│   │   │   ├── controller/
-│   │   │   │   └── ProdutoController.java       # Orquestrador MVC e ouvinte Observer
-│   │   │   ├── model/
+.
+├── .github/
+│   └── workflows/
+│       ├── backend-ci.yml           # Pipeline de build, testes JUnit e trigger no Render
+│       └── frontend-ci.yml          # Pipeline de linting, build Angular e deploy na Vercel
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/br/gov/sp/fatec/pos/
+│   │   │   │   ├── PosWebApplication.java         # Classe principal Spring Boot
+│   │   │   │   ├── config/
+│   │   │   │   │   ├── CorsConfig.java            # Configuração de CORS para SPA
+│   │   │   │   │   └── OpenApiConfig.java         # Metadados do OpenAPI / Swagger
+│   │   │   │   ├── controller/
+│   │   │   │   │   └── ProductRestController.java # Endpoints RESTful
+│   │   │   │   ├── dto/
+│   │   │   │   │   ├── ProductRequestDTO.java     # Payload validado de entrada
+│   │   │   │   │   └── ProductResponseDTO.java    # Representação pública do produto
 │   │   │   │   ├── entity/
-│   │   │   │   │   └── Produto.java             # Entidade JPA mapeada para tabela 'produtos'
-│   │   │   │   ├── observer/
-│   │   │   │   │   └── ProdutoObserver.java     # Interface funcional do padrão Observer
+│   │   │   │   │   └── Product.java               # Entidade JPA mapeada
+│   │   │   │   ├── exception/
+│   │   │   │   │   └── GlobalExceptionHandler.java# Interceptador global de erros HTTP
 │   │   │   │   ├── repository/
-│   │   │   │   │   ├── ProdutoRepository.java   # Abstração de persistência (Interface)
-│   │   │   │   │   └── ProdutoRepositoryImpl.java # Implementação com JPA / EntityManager
+│   │   │   │   │   └── ProductRepository.java     # Repositório Spring Data JPA
 │   │   │   │   └── service/
-│   │   │   │       └── ProdutoService.java      # Regras de negócio, unicidade e Subject Observer
-│   │   │   ├── util/
-│   │   │   │   └── JPAUtil.java                 # Gerenciador Singleton do EntityManagerFactory
-│   │   │   └── view/
-│   │   │       ├── MainFrame.java               # Janela com CardLayout para alternância de telas
-│   │   │       ├── ProdutoFormView.java         # Formulário de cadastro/edição com GridBagLayout
-│   │   │       ├── ProdutoListView.java         # Tabela de dados com JTable e ações CRUD
-│   │   │       └── tablemodel/
-│   │   │           └── ProdutoTableModel.java   # Modelo de tabela reativo (AbstractTableModel)
-│   │   └── resources/
-│   │       └── META-INF/
-│   │           └── persistence.xml              # Configuração JPA para banco H2 e testes
-│   └── test/java/br/gov/sp/cps/fatec/pdv/
-│       ├── model/repository/
-│       │   └── ProdutoRepositoryTest.java       # Teste de persistência e operações CRUD
-│       └── model/service/
-│           └── ProdutoServiceTest.java          # Teste de validações de negócio e Observer
-├── pom.xml                                      # Descritor do Maven e dependências
-├── mvnw / mvnw.cmd                              # Scripts executáveis do Maven Wrapper
-└── README.md                                    # Plano de aula e documentação técnica integrada
+│   │   │   │       └── ProductService.java        # Regras de negócio e transações
+│   │   │   └── resources/
+│   │   │       └── application.yml                # Configuração do DataSource e Swagger
+│   │   └── test/
+│   │       ├── java/br/gov/sp/fatec/pos/service/
+│   │       │   └── ProductServiceTest.java        # Testes de integração e domínio
+│   │       └── resources/
+│   │           └── application.yml                # Configuração para banco H2 em memória
+│   ├── Dockerfile                                 # Multi-stage build Maven + JRE 17
+│   ├── mvnw / mvnw.cmd                            # Maven Wrapper
+│   └── pom.xml                                    # Descritor Maven do Back-end
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── core/
+│   │   │   │   ├── models/product.model.ts        # Interface TypeScript
+│   │   │   │   └── services/product.service.ts    # Chamadas assíncronas HttpClient
+│   │   │   ├── pages/
+│   │   │   │   ├── product-list/                  # Tela 1: Listagem tabular de produtos
+│   │   │   │   └── product-form/                  # Tela 2: Cadastro e edição reativa
+│   │   │   ├── app.ts / app.html / app.css        # Shell principal e navbar
+│   │   │   ├── app.config.ts                      # Provedores (Router, HttpClient)
+│   │   │   └── app.routes.ts                      # Rotas da aplicação
+│   │   ├── environments/
+│   │   │   ├── environment.ts                     # URL da API em desenvolvimento
+│   │   │   └── environment.prod.ts                # URL da API em produção
+│   │   ├── styles.css                             # Design System global
+│   │   └── index.html                             # Página base SPA
+│   ├── Dockerfile                                 # Multi-stage build Node + NGINX
+│   ├── nginx.conf                                 # Configuração NGINX para SPA
+│   ├── package.json                               # Dependências Node.js
+│   ├── angular.json                               # Configurações do Angular CLI
+│   └── vercel.json                                # Regras de reescrita SPA para Vercel
+├── docker-compose.yml                             # Orquestração local dos dois serviços
+└── README.md                                      # Documentação técnica do projeto
 ```
 
 ---
 
-## 8. Como Compilar e Executar
+## 5. Guia de Instalação e Execução Local
 
 ### Pré-requisitos
-- **Java JDK 17** ou superior instalado (`java -version`).
-- Acesso à internet na primeira execução para download automático de dependências pelo Maven Wrapper.
+* **Java Development Kit (JDK):** Versão 17 ou superior instalada.
+* **Node.js:** Versão 20 LTS ou superior com npm.
+* **Docker & Docker Compose:** Instalados e em execução no sistema operacional (opcional para execução conteinerizada).
 
-### 8.1. Execução via Maven Wrapper (Modo Desenvolvimento)
+---
 
-No terminal, posicionado na raiz do projeto:
+### Opção 1: Execução Rápida via Docker Compose (Recomendada)
 
-#### No Windows (PowerShell / CMD):
-```powershell
-# Executar a aplicação diretamente pelo Maven Wrapper:
-.\mvnw.cmd compile exec:java -Dexec.mainClass="br.gov.sp.cps.fatec.pdv.Main"
-```
+Para orquestrar e subir ambos os serviços conteinerizados com um único comando na raiz do projeto:
 
-#### No Linux / macOS (Bash / Zsh):
 ```bash
-./mvnw compile exec:java -Dexec.mainClass="br.gov.sp.cps.fatec.pdv.Main"
+docker compose up --build
+```
+
+Após a inicialização dos contêineres:
+* **Front-end SPA:** Acesse em [http://localhost:80](http://localhost:80)
+* **Back-end REST API:** Acesse em [http://localhost:8080](http://localhost:8080)
+* **Swagger UI:** Acesse em [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+* **H2 Console:** Acesse em [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+
+Para interromper os serviços:
+```bash
+docker compose down
 ```
 
 ---
 
-### 8.2. Compilação, Testes e Geração do Pacote JAR (Produção)
+### Opção 2: Execução Manual em Ambiente de Desenvolvimento
 
-Para executar a suíte completa de testes automatizados e empacotar o projeto em um arquivo JAR executável autossuficiente:
+#### Passo 1: Executar o Back-end (Spring Boot)
 
-```powershell
-# Limpar, testar e empacotar:
-.\mvnw.cmd clean package
+Navegue até a pasta `backend/` e inicie a aplicação com o Maven Wrapper:
+
+* **Linux / macOS:**
+  ```bash
+  cd backend
+  chmod +x mvnw
+  ./mvnw spring-boot:run
+  ```
+
+* **Windows (PowerShell / CMD):**
+  ```powershell
+  cd backend
+  .\mvnw.cmd spring-boot:run
+  ```
+
+O servidor iniciará na porta **8080** conectando-se ao banco H2 local em `./data/pos_db`.
+
+#### Passo 2: Executar o Front-end (Angular SPA)
+
+Abra outro terminal, navegue até a pasta `frontend/`, instale os pacotes npm e inicie o servidor de desenvolvimento:
+
+```bash
+cd frontend
+npm install
+npm start
 ```
 
-Após o término com `BUILD SUCCESS`, execute o artefato gerado:
+O servidor de desenvolvimento do Angular iniciará por padrão em [http://localhost:4200](http://localhost:4200), consumindo diretamente a API local em `http://localhost:8080`.
 
-```powershell
-# Execução do executável empacotado:
-java -jar target/exemplo_persistencia_JavaSwing-1.0.0.jar
+---
+
+## 6. Documentação Interativa da API (Swagger / OpenAPI)
+
+Com o back-end em execução, a documentação formal e interativa gerada pelo Springdoc OpenAPI pode ser acessada em:
+
+👉 **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)**
+
+A especificação OpenAPI em formato JSON bruto está disponível em:
+👉 **[http://localhost:8080/api-docs](http://localhost:8080/api-docs)**
+
+### Resumo de Endpoints RESTful
+
+| Verbo HTTP | Endpoint | Descrição | Status Sucesso | Status Erro |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/api/products` | Retorna lista completa de produtos | `200 OK` | `500 Internal Error` |
+| `GET` | `/api/products/{id}` | Busca produto pelo identificador | `200 OK` | `404 Not Found` |
+| `POST` | `/api/products` | Cadastra novo produto com validações | `201 Created` | `400 Bad Request` |
+| `PUT` | `/api/products/{id}` | Atualiza dados de um produto existente | `200 OK` | `400 Bad Request`, `404 Not Found` |
+| `DELETE` | `/api/products/{id}` | Exclui permanentemente um produto | `204 No Content` | `404 Not Found` |
+
+### Exemplo de Payload de Requisição (`POST / PUT /api/products`)
+
+```json
+{
+  "barcode": "7891234567890",
+  "name": "Teclado Mecânico RGB Switch Blue",
+  "price": 289.90,
+  "stockQuantity": 25
+}
 ```
 
----
+### Exemplo de Resposta (`201 Created` / `200 OK`)
 
-### 8.3. Execução Direta via IDE (VS Code, IntelliJ IDEA, Eclipse ou NetBeans)
-1. Abra a pasta do projeto como um projeto Maven existente na sua IDE preferida.
-2. Aguarde a indexação das dependências do `pom.xml`.
-3. Navegue até o arquivo `src/main/java/br/gov/sp/cps/fatec/pdv/Main.java`.
-4. Clique com o botão direito e selecione **Run 'Main.main()'**.
+```json
+{
+  "id": 1,
+  "barcode": "7891234567890",
+  "name": "Teclado Mecânico RGB Switch Blue",
+  "price": 289.90,
+  "stockQuantity": 25
+}
+```
 
----
+### Acesso ao Console Web do Banco de Dados H2
 
-## 9. Cronograma e Desenvolvimento da Aula (50 Minutos)
+Para inspecionar diretamente as tabelas físicas do banco de dados relacional:
 
-Este cronograma detalha a articulação didática entre exposição teórica, inspeção de código e demonstração funcional diante da Banca Examinadora:
-
-| Etapa | Tempo | Estratégia Pedagógica | Conteúdo Programático Desenvolvido |
-| :---: | :---: | :--- | :--- |
-| **1. Abertura e Situação-Problema** | 00min a 10min | Estudo de Caso Norteador e Contextualização Curricular | Apresentação pessoal, articulação com TP-I e Banco de Dados (PPC), objetivos de aprendizagem (CHA). Introdução à situação-problema do PDV comercial e riscos de acoplar telas a comandos SQL. |
-| **2. Fundamentação Teórica e Arquitetura** | 10min a 25min | Exposição Conceitual Dialogada com Diagramas | Persistência de dados (RAM vs. Disco / ACID), caracterização do Java Swing com IoC, arquitetura MVC (SoC), revisão formal do padrão Observer (GoF), Repository (DDD) e funcionamento do ORM (JPA/Hibernate) para resolução do *impedance mismatch*. Apresentação da *stack* do projeto. |
-| **3. Inspeção da Implementação (Estudo de Caso)** | 25min a 45min | Demonstração Dirigida de Código guiada por Diagrama de Sequência | Condução passo a passo do fluxo "Cadastrar Novo Produto" integrando teoria e prática:<br>• **View → Controller:** Captura de eventos (`ActionListener`) e sanitização de dados.<br>• **Controller → Model:** Validação de domínio em `ProdutoService`.<br>• **Model → Persistência:** Execução de transação ACID no `ProdutoRepositoryImpl` via ORM (`EntityManager` / H2).<br>• **Sincronização Reativa:** Disparo do padrão Observer na EDT do Swing (`fireTableDataChanged`) e repintura da `JTable`. |
-| **4. Síntese e Fechamento** | 45min a 48min | Síntese Integradora e Validação Formativa | Recapitulação do fluxo integrado (Interface → Padrões → Persistência Segura) e abertura da sessão para arguição da Comissão Julgadora. |
-| **5. Proposição Prática e PBL** | 48min a 50min | Aprendizagem Baseada em Projetos (PBL) | Apresentação do repositório público no GitHub, proposta de extensão do núcleo PDV em equipes multidisciplinares (novas entidades e telas) e explicitação da rubrica de avaliação formativa. |
-
----
-
-## 10. Avaliação da Aprendizagem e Proposta Prática (PBL)
-
-Para consolidar as competências da disciplina, os estudantes utilizarão o repositório Git do projeto demonstrado (**PDV Core**) como matriz arquitetural inicial.
-
-### 10.1. O Desafio Prático
-Em equipes, os estudantes deverão estender a base do projeto para conceber e implementar um sistema completo de PDV aplicado a um **nicho de mercado** à escolha do grupo (ex.: farmácia, livraria, autopeças, pet shop).
-
-### 10.2. Requisitos de Expansão
-1. **Modelagem e Mapeamento ORM:** Criação de novas entidades e relacionamentos mapeados com JPA (ex.: `Cliente`, `Venda`, `ItemVenda`).
-2. **Interface Gráfica Desacoplada:** Implementação das respectivas telas e tabelas Swing respeitando a separação MVC e a sincronização reativa com o padrão Observer.
-3. **Regras de Negócio e Transações:** Tratamento de transações atômicas de vendas com validação de estoque e controle de exceções na camada Repository.
-4. **Engenharia e Colaboração:** Utilização rigorosa de versionamento colaborativo com Gitflow e commits semânticos.
-
-### 10.3. Critérios de Avaliação (Rubrica de Desempenho)
-- **Aderência Arquitetural (MVC):** Rigor na separação de responsabilidades (a View não acessa o banco; o Controller apenas orquestra; a persistência é isolada no Repository).
-- **Aplicação de Padrões de Projeto (GoF / Repository):** Utilização correta dos padrões Observer para atualização de interfaces e contratos de interface desacoplados.
-- **Qualidade e Segurança da Persistência:** Mapeamento ORM coerente, integridade de transações (`commit`/`rollback`) e ausência de vulnerabilidades de SQL Injection.
-- **Usabilidade e Sincronização da Interface:** Interface funcional, responsiva e com atualização consistente dos dados na tabela após operações de CRUD.
-- **Processo de Engenharia e Versionamento:** Histórico de commits coerente, documentação técnica (`README.md` com diagramas) e divisão colaborativa de tarefas no Gitflow.
+* **URL de Acesso:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+* **JDBC URL:** `jdbc:h2:file:./data/pos_db`
+* **Driver Class:** `org.h2.Driver`
+* **User Name:** `sa`
+* **Password:** *(deixar em branco)*
 
 ---
 
-## 11. Recursos Didáticos
+## 7. Estratégia de Testes Automatizados
 
-- **Quadro branco e marcadores:** Para esquematização visual e dedução dos fluxos arquiteturais durante a introdução teórica.
-- **Projeção multimídia institucional:** Para exibição dos diagramas conceituais (Mermaid) e demonstração dirigida do código-fonte.
-- **Plano de aula impresso:** Entregue em 3 vias à Comissão Julgadora do Concurso Público.
-- **Repositório de controle de versão (GitHub):** Roteiro e esqueleto do projeto disponibilizados aos estudantes como ponto de partida da atividade prática.
+O sistema conta com testes automatizados que garantem estabilidade, ausência de regressões e validação estrita das regras de negócio.
 
----
+### Executando Testes do Back-end
 
-## 12. Referências Bibliográficas
+Navegue até a pasta `backend/` e execute:
 
-- **FREEMAN, Eric; FREEMAN, Elisabeth.** *Use a Cabeça! Padrões de Projetos.* 2. ed. Rio de Janeiro: Alta Books, 2007.
-- **GAMMA, Erich; HELM, Richard; JOHNSON, Ralph; VLISSIDES, John.** *Padrões de Projetos: Soluções Reutilizáveis de Software Orientados a Objetos.* Porto Alegre: Bookman, 2015.
-- **GUERRA, Eduardo.** *Design Patterns com Java: Projeto Orientado a Objetos guiado por Padrões.* São Paulo: Casa do Código, 2014.
-- **SIERRA, Kathy; BATES, Bert.** *Use a Cabeça! Java.* 2. ed. São Paulo: O'Reilly / Alta Books, 2005.
-- **ANDRADE, S. S.** *Aprenda Java EE 8: Aplicações Para Web com Spring MVC e Hibernate.* São Paulo: SENAI-SP Editora, 2018.
-- **ELMASRI, Ramez; NAVATHE, Shamkant B.** *Sistemas de Banco de Dados.* 7. ed. São Paulo: Pearson, 2018.
-- **ECLIPSE FOUNDATION.** *Jakarta Persistence (JPA) Specification 3.1.* Disponível em: <https://jakarta.ee/specifications/persistence/>. Acesso em: 11 out. 2026.
-- **H2 DATABASE ENGINE.** *H2 Database Engine Architecture and Documentation.* Disponível em: <http://www.h2database.com/html/main.html>. Acesso em: 11 out. 2026.
-- **HIBERNATE COMMUNITY.** *Hibernate ORM User Guide.* Disponível em: <https://hibernate.org/orm/documentation/>. Acesso em: 11 out. 2026.
-- **ORACLE CORPORATION.** *Java Platform, Standard Edition (Java SE) Documentation: Package javax.swing.* Disponível em: <https://docs.oracle.com/en/java/javase/>. Acesso em: 11 out. 2026.
+```bash
+cd backend
+./mvnw clean test   # Linux / macOS
+.\mvnw.cmd clean test # Windows
+```
 
----
+#### Regras de Negócio Testadas (`ProductServiceTest`):
+1. **Unicidade de Código de Barras:** Garante que tentativas de cadastrar ou alterar produtos para um código de barras já existente em outro registro disparem `IllegalArgumentException`.
+2. **Validação de Preço Positivo:** Rejeita preços nulos, iguais a zero ou negativos.
+3. **Validação de Estoque Não-Negativo:** Rejeita quantidades negativas de produtos no inventário.
+4. **Isolamento Transacional:** Cada teste executa em um contexto limpo contra uma instância isolada do banco H2 em memória.
 
-## 13. Histórico de Versões e Gitflow
+### Executando Testes do Front-end
 
-O repositório foi construído seguindo o modelo **Gitflow** e convenções de **Conventional Commits**:
+Navegue até a pasta `frontend/` e execute:
 
-- `main`: Branch estável contendo a versão consolidada para demonstração e produção.
-- `develop`: Branch de integração contínua das novas funcionalidades.
-- `feature/setup-and-persistence`: Configuração Maven, JPA Hibernate 6, H2 Database, Entidade `Produto`, Repositório e testes unitários.
-- `feature/views-and-tablemodel`: Construção dos componentes visuais Swing (`ProdutoTableModel`, `ProdutoFormView`, `ProdutoListView`, `MainFrame`).
-- `feature/controller-and-observer`: Implementação da orquestração do `ProdutoController`, serviço de validações `ProdutoService` e sincronização via `ProdutoObserver`.
-- `docs/didactic-documentation`: Elaboração completa da documentação pedagógica, plano de aula para exame didático e diagramas arquiteturais.
+```bash
+cd frontend
+npm test
+```
+
+Valida a inicialização dos componentes, injeção de dependências e renderização do shell da aplicação.
 
 ---
 
-**Centro Estadual de Educação Tecnológica Paula Souza — FATEC Votorantim**  
-*Curso de Desenvolvimento de Software Multiplataforma | Técnicas de Programação II*  
-*Prof. Cainã Antunes Silva*
+## 8. Esteira de Integração e Entrega Contínua (CI/CD)
+
+O monorepo utiliza o **GitHub Actions** para orquestrar pipelines desacopladas acionadas por mudanças nos respectivos diretórios:
+
+### Pipeline Back-end (`.github/workflows/backend-ci.yml`)
+* **Gatilho:** Pushes e Pull Requests na branch `main` com alterações em `backend/**`.
+* **Etapas:**
+  1. Checkout do código fonte.
+  2. Setup do JDK 17 (Eclipse Temurin) com cache Maven automático.
+  3. Execução da suíte completa de testes automatizados (`./mvnw clean test`).
+  4. Empacotamento do artefato JAR de produção (`./mvnw package -DskipTests`).
+  5. Acionamento do Deploy Hook seguro no Render para atualização automática do Web Service de produção.
+
+### Pipeline Front-end (`.github/workflows/frontend-ci.yml`)
+* **Gatilho:** Pushes e Pull Requests na branch `main` com alterações em `frontend/**`.
+* **Etapas:**
+  1. Checkout do código fonte.
+  2. Setup do Node.js 20 com cache de dependências npm.
+  3. Instalação limpa (`npm ci`).
+  4. Checagem estática de tipos e compilação otimizada para produção (`npm run build -- --configuration production`).
+  5. Deploy automatizado na rede de borda da Vercel (`amondnet/vercel-action`).
+
+---
+
+## 9. Instruções de Deploy em Nuvem (Produção)
+
+### Deploy do Back-end no Render (Web Service)
+1. Crie uma nova conta ou faça login no [Render](https://render.com).
+2. Selecione **New +** $\rightarrow$ **Web Service**.
+3. Conecte seu repositório Git.
+4. Configure as opções do serviço:
+   * **Root Directory:** `backend`
+   * **Environment:** `Docker` (usará automaticamente o `backend/Dockerfile`)
+   * **Instance Type:** Free
+   * **Port:** `8080`
+5. Em **Advanced** $\rightarrow$ **Deploy Hook**, gere a URL do webhook e adicione-a nos segredos do repositório GitHub como `RENDER_DEPLOY_HOOK_URL`.
+
+### Deploy do Front-end na Vercel (Edge SPA)
+1. Crie uma conta ou faça login na [Vercel](https://vercel.com).
+2. Clique em **Add New...** $\rightarrow$ **Project** e importe o repositório.
+3. Configure o projeto:
+   * **Root Directory:** selecione `frontend`.
+   * **Framework Preset:** `Angular`.
+   * **Build Command:** `npm run build`
+   * **Output Directory:** `dist/frontend/browser`
+4. Em **Environment Variables**, configure se desejar a variável apontando para a URL pública do back-end no Render.
+5. O arquivo `frontend/vercel.json` garante o roteamento correto de todas as URLs da SPA para `index.html`.
+
+---
+
+## 10. Licença e Autoria
+
+Este projeto foi desenvolvido como implementação de referência de sistemas web modernos com persistência relacional transacional e chamadas assíncronas.
+
+* **Autor:** Prof. Cainã Antunes Silva
+* **Licença:** Distribuído sob a licença [Apache 2.0](LICENSE).
