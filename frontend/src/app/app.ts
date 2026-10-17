@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterModule } from '@angular/router';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,7 @@ import { RouterOutlet, RouterModule } from '@angular/router';
 })
 export class AppComponent {
   title = 'PDV Core';
+  swaggerUrl = environment.apiUrl 
+    ? `${environment.apiUrl}/swagger-ui.html` 
+    : '/swagger-ui.html';
 }
