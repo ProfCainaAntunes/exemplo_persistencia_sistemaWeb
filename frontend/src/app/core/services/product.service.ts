@@ -15,7 +15,9 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly apiUrl = `${environment.apiUrl}/api/products`;
+  private readonly apiUrl = environment.apiUrl
+    ? `${environment.apiUrl.replace(/\/+$/, '')}/api/products`
+    : '/api/products';
 
   constructor(private http: HttpClient) {}
 

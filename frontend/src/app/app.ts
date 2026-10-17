@@ -13,6 +13,6 @@ import { environment } from '../environments/environment';
 export class AppComponent {
   title = 'PDV Core';
   swaggerUrl = environment.apiUrl 
-    ? `${environment.apiUrl}/swagger-ui.html` 
+    ? `${environment.apiUrl.replace(/\/+$/, '')}/swagger-ui.html` 
     : '/swagger-ui.html';
 }
