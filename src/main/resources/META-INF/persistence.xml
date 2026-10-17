@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <!-- Unidade de Persistência Principal da Aplicação PDV -->
+    <persistence-unit name="pdv-pu" transaction-type="RESOURCE_LOCAL">
+        <description>Unidade de Persistência Didática para PDV usando H2 Database e Hibernate 6</description>
+        
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Mapeamento da Entidade de Domínio -->
+        <class>br.gov.sp.cps.fatec.pdv.model.entity.Produto</class>
+
+        <properties>
+            <!-- Configurações de Conexão JDBC (H2 Database embutido baseado em arquivo local) -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:./data/pdv_db;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+
+            <!-- Dialeto do Hibernate para H2 -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+
+            <!-- Estratégia de DDL (criação e atualização automática das tabelas) -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+
+            <!-- Formatação e Log Didático das Instruções SQL Executadas -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.highlight_sql" value="true"/>
+
+            <!-- Otimizações de pool interno do Hibernate para ambiente desktop -->
+            <property name="hibernate.connection.pool_size" value="5"/>
+        </properties>
+    </persistence-unit>
+
+    <!-- Unidade de Persistência em Memória exclusiva para Testes Unitários/Integrados -->
+    <persistence-unit name="pdv-test-pu" transaction-type="RESOURCE_LOCAL">
+        <description>Unidade de Persistência em Memória para Testes Rápidos e Isolados</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>br.gov.sp.cps.fatec.pdv.model.entity.Produto</class>
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:mem:pdv_test_db;DB_CLOSE_DELAY=-1"/>
+            <property name="jakarta.persistence.jdbc.user" value="sa"/>
+            <property name="jakarta.persistence.jdbc.password" value=""/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
