@@ -39,10 +39,17 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Banco de Dados Relacional H2 embutido -->
+        <!-- Banco de Dados Relacional H2 embutido (Desenvolvimento local e Testes) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Driver PostgreSQL para persistência externa em produção (Render, Neon, Supabase) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
