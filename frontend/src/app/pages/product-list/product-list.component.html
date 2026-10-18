@@ -18,16 +18,21 @@
     <span>{{ errorMessage }}</span>
   </div>
 
-  <!-- 2. Tabela Central com Borda de Agrupamento ("Produtos Cadastrados") -->
+  <!-- 2. Seção Central de Produtos -->
   <section class="card-section">
     <div class="card-header-bar">
-      <h2 class="card-title">Produtos Cadastrados</h2>
+      <div class="card-title-group">
+        <h2 class="card-title">Produtos Cadastrados</h2>
+        <span class="product-count-badge">{{ products.length }}</span>
+      </div>
       <div *ngIf="isLoading" class="loading-badge">
-        <span class="spinner spinner-dark"></span> Sincronizando com a API...
+        <span class="spinner spinner-dark"></span> 
+        <span class="loading-text">Sincronizando com a API...</span>
       </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 2A. Visualização Desktop: Tabela de Dados Completa -->
+    <div class="table-responsive desktop-view">
       <table class="data-table">
         <thead>
           <tr>
@@ -73,18 +78,77 @@
         </tbody>
       </table>
     </div>
+
+    <!-- 2B. Visualização Mobile: Cards Otimizados para Telas Móveis e Toque -->
+    <div class="mobile-cards-view mobile-view">
+      <div 
+        *ngFor="let product of products" 
+        (click)="selectProduct(product)"
+        [class.card-selected]="selectedProduct?.id === product.id"
+        class="product-mobile-card"
+      >
+        <div class="card-top-row">
+          <div class="card-id-wrapper">
+            <span class="badge-id">#{{ product.id }}</span>
+            <span *ngIf="selectedProduct?.id === product.id" class="selected-pill">Selecionado</span>
+          </div>
+          <span [class.badge-stock-low]="product.stockQuantity <= 5" [class.badge-stock-ok]="product.stockQuantity > 5" class="stock-pill">
+            {{ product.stockQuantity }} un.
+          </span>
+        </div>
+
+        <div class="card-body-section">
+          <h3 class="card-product-name">{{ product.name }}</h3>
+          
+          <div class="card-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Preço</span>
+              <span class="meta-value-price">{{ formatPrice(product.price) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Cód. Barras</span>
+              <span class="meta-value-barcode font-mono">{{ product.barcode }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ações Rápidas no Próprio Card quando Selecionado no Mobile -->
+        <div *ngIf="selectedProduct?.id === product.id" class="card-quick-actions" (click)="$event.stopPropagation()">
+          <button type="button" class="btn btn-sm btn-outline" (click)="onEditProduct()">
+            Editar
+          </button>
+          <button type="button" class="btn btn-sm btn-danger" (click)="onDeleteProduct()" [disabled]="isDeleting">
+            <span *ngIf="isDeleting" class="spinner"></span>
+            Excluir
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado Vazio Mobile -->
+      <div *ngIf="!isLoading && products.length === 0" class="empty-state-mobile">
+        <div class="empty-icon-circle">📦</div>
+        <p class="empty-title">Nenhum produto cadastrado</p>
+        <p class="empty-hint">Toque em "+ Novo Produto" para realizar o primeiro cadastro.</p>
+        <button type="button" class="btn btn-primary btn-empty-cta" (click)="onNewProduct()">
+          + Novo Produto
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- 3. Rodapé com Contador de Registros e Botões de Ação -->
   <footer class="view-footer">
     <div class="footer-counter">
-      Total: {{ products.length }} produto(s) cadastrado(s)
+      <span>Total: <strong>{{ products.length }}</strong> produto(s)</span>
+      <span *ngIf="selectedProduct" class="selection-indicator">
+        &bull; 1 selecionado: <strong>#{{ selectedProduct.id }}</strong>
+      </span>
     </div>
 
     <div class="footer-actions">
       <button 
         type="button" 
-        class="btn btn-outline" 
+        class="btn btn-outline btn-action" 
         (click)="onReload()" 
         [disabled]="isLoading"
         title="Recarregar catálogo a partir da API REST"
@@ -95,7 +159,7 @@
 
       <button 
         type="button" 
-        class="btn btn-danger" 
+        class="btn btn-danger btn-action" 
         (click)="onDeleteProduct()" 
         [disabled]="!selectedProduct || isDeleting"
         title="Excluir o produto selecionado na tabela"
@@ -106,7 +170,7 @@
 
       <button 
         type="button" 
-        class="btn btn-outline" 
+        class="btn btn-outline btn-action" 
         (click)="onEditProduct()" 
         [disabled]="!selectedProduct"
         title="Editar o produto selecionado na tabela"
@@ -116,7 +180,7 @@
 
       <button 
         type="button" 
-        class="btn btn-primary" 
+        class="btn btn-primary btn-action btn-primary-main" 
         (click)="onNewProduct()"
         title="Abrir formulário de cadastro de novo produto"
       >

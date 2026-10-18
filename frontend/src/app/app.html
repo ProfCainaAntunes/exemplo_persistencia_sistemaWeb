@@ -2,15 +2,16 @@
   <!-- Top Navbar -->
   <header class="app-navbar">
     <div class="navbar-content">
-      <div class="brand-group">
+      <a routerLink="/products" class="brand-group" title="PDV Core Home">
         <div class="brand-logo">PDV</div>
-        <div>
+        <div class="brand-info">
           <span class="brand-name">PDV Core</span>
           <span class="brand-badge">Sistema Web Assíncrono</span>
         </div>
-      </div>
+      </a>
 
-      <nav class="navbar-links">
+      <!-- Desktop Navigation Links -->
+      <nav class="navbar-links desktop-nav" aria-label="Navegação desktop">
         <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
           Catálogo
         </a>
@@ -21,6 +22,14 @@
           Swagger API ↗
         </a>
       </nav>
+
+      <!-- Mobile Top Bar Quick Action -->
+      <div class="mobile-top-action">
+        <a [href]="swaggerUrl" target="_blank" rel="noopener noreferrer" class="mobile-api-pill" title="Acessar Swagger API">
+          <span class="api-tag">API Docs</span>
+          <span class="api-arrow">↗</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -29,10 +38,38 @@
     <router-outlet></router-outlet>
   </main>
 
+  <!-- Mobile Bottom Navigation Bar (Otimizado ergonomicamente para polegares em browsers móveis) -->
+  <nav class="mobile-bottom-nav" aria-label="Navegação móvel">
+    <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-link">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      <span class="bottom-nav-label">Catálogo</span>
+    </a>
+
+    <a routerLink="/products/new" routerLinkActive="active" class="bottom-nav-link bottom-nav-action">
+      <div class="nav-fab-bubble">
+        <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </div>
+      <span class="bottom-nav-label">Novo</span>
+    </a>
+
+    <a [href]="swaggerUrl" target="_blank" rel="noopener noreferrer" class="bottom-nav-link">
+      <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+      <span class="bottom-nav-label">Swagger</span>
+    </a>
+  </nav>
+
   <!-- Minimal Footer -->
   <footer class="app-site-footer">
     <div class="footer-inner">
-      <span>Desenvolvimento Web II &bull; CST em Desenvolvimento de Software Multiplataforma (FATEC)</span>
+      <span>Desenvolvimento Web II &bull; CST em DSM (FATEC)</span>
       <span>Persistência Relacional com Chamadas Assíncronas</span>
     </div>
   </footer>

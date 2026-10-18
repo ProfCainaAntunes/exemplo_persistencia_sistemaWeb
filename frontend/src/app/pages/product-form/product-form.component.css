@@ -22,34 +22,6 @@
   margin-top: 4px;
 }
 
-/* Alertas */
-.alert {
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.alert-success {
-  background-color: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.alert-danger {
-  background-color: var(--danger-light);
-  color: var(--danger-color);
-  border: 1px solid #fecaca;
-}
-
-.alert-icon {
-  font-weight: 700;
-}
-
 /* 2. Card Central */
 .card-section {
   background-color: var(--neutral-card);
@@ -87,7 +59,7 @@
   padding: 28px 24px;
 }
 
-/* Grid Bag Layout Simulado para Alinhamento Vertical Perfeito */
+/* Grid Bag Layout Simulado para Alinhamento Vertical em Desktop */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -129,15 +101,16 @@
 .form-control {
   width: 100%;
   padding: 8px 14px;
-  height: 40px;
+  height: 42px;
   border-radius: var(--radius-md);
   border: 1px solid var(--neutral-border);
   background-color: #ffffff;
   color: var(--neutral-dark);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   transition: var(--transition);
   outline: none;
+  -webkit-appearance: none;
 }
 
 .form-control:focus {
@@ -180,46 +153,74 @@
   flex-wrap: wrap;
 }
 
-/* Botões */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 8px 20px;
-  height: 38px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid transparent;
-  text-decoration: none;
-}
+/* -------------------------------------------------------------
+   Regras de Responsividade Mobile (Telas <= 640px)
+   ------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .view-container {
+    margin: 16px auto;
+    padding: 0 14px;
+  }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
+  .view-header {
+    margin-bottom: 16px;
+  }
 
-.btn-primary {
-  background-color: var(--primary-color);
-  color: #ffffff;
-}
+  .view-title {
+    font-size: 1.35rem;
+  }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}
+  .view-subtitle {
+    font-size: 0.8125rem;
+  }
 
-.btn-outline {
-  background-color: #ffffff;
-  border-color: var(--neutral-border);
-  color: var(--neutral-body);
-}
+  .card-section {
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+  }
 
-.btn-outline:hover:not(:disabled) {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+  .card-header-bar {
+    padding: 12px 16px;
+  }
+
+  .form-body {
+    padding: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  /* 16px de fonte no mobile previne zoom automático invasivo do iOS Safari */
+  .form-control {
+    font-size: 16px;
+    height: 46px;
+  }
+
+  .form-footer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-top: 14px;
+    margin-top: 8px;
+  }
+
+  .btn-submit {
+    grid-column: span 2;
+    order: -1;
+    height: 46px;
+    min-height: 46px;
+    font-size: 0.95rem;
+  }
+
+  .btn-form-secondary {
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+  }
 }

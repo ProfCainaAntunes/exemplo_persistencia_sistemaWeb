@@ -135,15 +135,15 @@
       <div class="form-footer-actions">
         <button 
           type="button" 
-          class="btn btn-outline" 
+          class="btn btn-outline btn-form-secondary btn-back" 
           (click)="onBack()"
         >
-          &lt;&lt; Voltar para Listagem
+          &lt;&lt; Voltar
         </button>
 
         <button 
           type="button" 
-          class="btn btn-outline" 
+          class="btn btn-outline btn-form-secondary btn-clear" 
           (click)="onClear()" 
           [disabled]="isSubmitting"
         >
@@ -152,7 +152,7 @@
 
         <button 
           type="submit" 
-          class="btn btn-primary" 
+          class="btn btn-primary btn-form-primary btn-submit" 
           [disabled]="isSubmitting"
         >
           <span *ngIf="isSubmitting" class="spinner"></span>
